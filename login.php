@@ -11,8 +11,6 @@ else if (isset($_SESSION['user_id'])) {
     header("Location: dashboard.php");
     exit();
 }
-
-
 // Handle the form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
@@ -25,27 +23,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Query to find the user by email and check if they are admin
-    $stmt = $conn->prepare("SELECT id, name, password, is_admin FROM users WHERE email = ?");
+    // Query to find the user by email
+    $stmt = $conn->prepare("SELECT id, name, password, role FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
-    $stmt->bind_result($user_id, $user_name, $hashed_password, $is_admin);
+    $stmt->bind_result($user_id, $user_name, $hashed_password, $role);
     $stmt->fetch();
-
 
     // Validate email and password
     if ($stmt && password_verify($password, $hashed_password)) {
         // Set session variables
         $_SESSION['user_id'] = $user_id;
         $_SESSION['user_name'] = $user_name;
-        $_SESSION['is_admin'] = $is_admin;
+        $_SESSION['role'] = $role;
+        
 
-        // Redirect to admin dashboard if the user is an admin
-        if ($is_admin) {
+        // Redirect based on role
+        if ($role === 'admin') {
             header("Location: admin_dashboard.php");
             exit();
+        } elseif ($role === 'staff') {
+            header("Location: staff_dashboard.php");
+            exit();
         } else {
-            header("Location: dashboard.php");
+            header("Location: dashboard.php"); // Customer dashboard
             exit();
         }
     } else {

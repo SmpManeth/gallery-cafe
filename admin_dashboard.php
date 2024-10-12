@@ -1,8 +1,9 @@
 <?php
 session_start();
 
-// Ensure only admin has access
-if ($_SESSION['is_admin'] !== 1) {
+// Ensure only admin can access this page
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    // If the user is not logged in or not an admin, redirect to the login page
     header("Location: login.php");
     exit();
 }
@@ -14,31 +15,10 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Handle deletion of users, menu items, or reservations
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['delete_user'])) {
-        $user_id = $_POST['user_id'];
-        $conn->query("DELETE FROM users WHERE id = $user_id");
-        $conn->query("DELETE FROM reservations WHERE user_id = $user_id");
-    }
-
-    if (isset($_POST['delete_menu'])) {
-        $menu_id = $_POST['menu_id'];
-        $conn->query("DELETE FROM menu WHERE id = $menu_id");
-    }
-
-    if (isset($_POST['delete_reservation'])) {
-        $reservation_id = $_POST['reservation_id'];
-        $conn->query("DELETE FROM reservations WHERE id = $reservation_id");
-    }
-}
-
-// Fetch data from the database
+// Fetch data for admin management
 $users_result = $conn->query("SELECT * FROM users");
 $menu_result = $conn->query("SELECT * FROM menu");
-$reservations_result = $conn->query("SELECT reservations.id, users.name, reservations.guests, reservations.date, reservations.time 
-                                     FROM reservations 
-                                     JOIN users ON reservations.user_id = users.id");
+$reservations_result = $conn->query("SELECT reservations.id, users.name, reservations.guests, reservations.date, reservations.time FROM reservations JOIN users ON reservations.user_id = users.id");
 
 $conn->close();
 ?>
@@ -48,36 +28,13 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - The Gallery Café</title>
-    <!-- Bootstrap CSS for professional UI -->
+    <title>Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f4f4f4;
-        }
-        .navbar {
-            background-color: #343a40;
-        }
-        .navbar-brand {
-            color: white !important;
-        }
-        .container {
-            margin-top: 30px;
-        }
-        h2, h3 {
-            margin-top: 20px;
-        }
-        table {
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 <body>
 
     <!-- Admin Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Admin Dashboard</a>
             <ul class="navbar-nav ms-auto">
@@ -88,15 +45,16 @@ $conn->close();
         </div>
     </nav>
 
-    <div class="container">
-        <!-- User Management Section -->
-        <h2>User Management</h2>
+    <div class="container mt-5">
+        <h2>Manage Users</h2>
+        <!-- Table to manage users -->
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>Role</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -106,19 +64,18 @@ $conn->close();
                         <td><?php echo htmlspecialchars($user['id']); ?></td>
                         <td><?php echo htmlspecialchars($user['name']); ?></td>
                         <td><?php echo htmlspecialchars($user['email']); ?></td>
+                        <td><?php echo ucfirst($user['role']); ?></td>
                         <td>
-                            <form method="POST" action="" class="d-inline">
-                                <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
-                                <button type="submit" name="delete_user" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
+                            <a href="edit_user.php?id=<?php echo $user['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="delete_user.php?id=<?php echo $user['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
 
-        <!-- Menu Management Section -->
-        <h2>Menu Management</h2>
+        <h2>Manage Menu</h2>
+        <!-- Table to manage menu -->
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -137,18 +94,16 @@ $conn->close();
                         <td><?php echo htmlspecialchars($menu_item['cuisine_type']); ?></td>
                         <td>£<?php echo htmlspecialchars($menu_item['price']); ?></td>
                         <td>
-                            <form method="POST" action="" class="d-inline">
-                                <input type="hidden" name="menu_id" value="<?php echo $menu_item['id']; ?>">
-                                <button type="submit" name="delete_menu" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
+                            <a href="edit_menu.php?id=<?php echo $menu_item['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="delete_menu.php?id=<?php echo $menu_item['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
 
-        <!-- Reservation Management Section -->
-        <h2>Reservation Management</h2>
+        <h2>Manage Reservations</h2>
+        <!-- Table to manage reservations -->
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
@@ -169,19 +124,15 @@ $conn->close();
                         <td><?php echo htmlspecialchars($reservation['date']); ?></td>
                         <td><?php echo htmlspecialchars($reservation['time']); ?></td>
                         <td>
-                            <form method="POST" action="" class="d-inline">
-                                <input type="hidden" name="reservation_id" value="<?php echo $reservation['id']; ?>">
-                                <button type="submit" name="delete_reservation" class="btn btn-danger btn-sm">Delete</button>
-                            </form>
+                            <a href="edit_reservation.php?id=<?php echo $reservation['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="delete_reservation.php?id=<?php echo $reservation['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
-
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
