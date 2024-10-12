@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 12, 2024 at 08:59 PM
+-- Generation Time: Oct 12, 2024 at 09:24 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,8 +41,7 @@ CREATE TABLE `menu` (
 INSERT INTO `menu` (`id`, `dish_name`, `cuisine_type`, `price`) VALUES
 (1, 'Sri Lankan Rice and Curry', 'Sri Lankan', 10.99),
 (2, 'Chinese Stir-Fry Noodles', 'Chinese', 8.99),
-(3, 'Italian Margherita Pizza', 'Italian', 11.50),
-(4, 'French Croissants', 'French', 4.99);
+(3, 'Italian Margherita Pizza', 'Italian', 11.50);
 
 -- --------------------------------------------------------
 
@@ -59,13 +58,6 @@ CREATE TABLE `reservations` (
   `preorder` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `reservations`
---
-
-INSERT INTO `reservations` (`id`, `user_id`, `guests`, `date`, `time`, `preorder`) VALUES
-(1, 1, 4, '2024-10-14', '15:31:00', 'Sri Lankan Rice and Curry');
-
 -- --------------------------------------------------------
 
 --
@@ -76,15 +68,17 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `email` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL
+  `password` varchar(255) NOT NULL,
+  `is_admin` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `password`) VALUES
-(1, 'Maneth', 'smpmaneth@gmail.com', '$2y$10$zjm4g1ggKdi7WStAKLTneOuDqKxccnjpT8jkp4cNBEX3RWgycoCUu');
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `is_admin`) VALUES
+(1, 'Maneth', 'smpmaneth@gmail.com', '$2y$10$zjm4g1ggKdi7WStAKLTneOuDqKxccnjpT8jkp4cNBEX3RWgycoCUu', 0),
+(2, 'Admin', 'admin@example.com', '$2y$10$zjm4g1ggKdi7WStAKLTneOuDqKxccnjpT8jkp4cNBEX3RWgycoCUu', 1);
 
 --
 -- Indexes for dumped tables
@@ -130,7 +124,7 @@ ALTER TABLE `reservations`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
