@@ -1,18 +1,21 @@
 <?php
 session_start();
 
-// Ensure only customers have access
-if ($_SESSION['role'] !== 'customer') {
+// Ensure only logged-in users can access this page
+if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// Fetch user reservations
+// Database connection
 $conn = new mysqli('localhost', 'root', '', 'thegallerycafe');
-$reservations_result = $conn->prepare("SELECT id, guests, date, time FROM reservations WHERE user_id = ?");
-$reservations_result->bind_param("i", $_SESSION['user_id']);
-$reservations_result->execute();
-$reservations = $reservations_result->get_result();
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Fetch customer reservations
+$user_id = $_SESSION['user_id'];
+$reservations_result = $conn->query("SELECT * FROM reservations WHERE user_id = $user_id");
 
 $conn->close();
 ?>
@@ -48,24 +51,26 @@ $conn->close();
                     <th>Guests</th>
                     <th>Date</th>
                     <th>Time</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php while ($reservation = $reservations->fetch_assoc()): ?>
+                <?php while ($reservation = $reservations_result->fetch_assoc()): ?>
                     <tr>
                         <td><?php echo htmlspecialchars($reservation['id']); ?></td>
                         <td><?php echo htmlspecialchars($reservation['guests']); ?></td>
                         <td><?php echo htmlspecialchars($reservation['date']); ?></td>
                         <td><?php echo htmlspecialchars($reservation['time']); ?></td>
+                        <td>
+                            <a href="edit_reservation.php?id=<?php echo $reservation['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="delete_reservation.php?id=<?php echo $reservation['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this reservation?');">Delete</a>
+                        </td>
                     </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
-
-        <a href="make_reservation.php" class="btn btn-primary mt-3">Make a Reservation</a>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

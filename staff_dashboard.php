@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-// Ensure only operational staff have access
-if ($_SESSION['role'] !== 'staff') {
+// Ensure only staff and admin can access this page
+if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'staff' && $_SESSION['role'] !== 'admin')) {
     header("Location: login.php");
     exit();
 }
@@ -13,7 +13,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch reservations
+// Fetch reservation data
 $reservations_result = $conn->query("SELECT reservations.id, users.name, reservations.guests, reservations.date, reservations.time FROM reservations JOIN users ON reservations.user_id = users.id");
 
 $conn->close();
@@ -42,7 +42,6 @@ $conn->close();
     </nav>
 
     <div class="container mt-5">
-        <!-- Reservation Management Section -->
         <h2>Manage Reservations</h2>
         <table class="table table-bordered table-striped">
             <thead>
@@ -64,9 +63,8 @@ $conn->close();
                         <td><?php echo htmlspecialchars($reservation['date']); ?></td>
                         <td><?php echo htmlspecialchars($reservation['time']); ?></td>
                         <td>
-                            <a href="confirm_reservation.php?id=<?php echo $reservation['id']; ?>" class="btn btn-success btn-sm">Confirm</a>
                             <a href="edit_reservation.php?id=<?php echo $reservation['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="delete_reservation.php?id=<?php echo $reservation['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
+                            <a href="delete_reservation.php?id=<?php echo $reservation['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this reservation?');">Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
@@ -74,7 +72,6 @@ $conn->close();
         </table>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

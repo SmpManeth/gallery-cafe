@@ -3,14 +3,12 @@ session_start();
 
 // Ensure only admin can access this page
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    // If the user is not logged in or not an admin, redirect to the login page
     header("Location: login.php");
     exit();
 }
 
 // Database connection
 $conn = new mysqli('localhost', 'root', '', 'thegallerycafe');
-
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
@@ -28,7 +26,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard - The Gallery Café</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -67,7 +65,7 @@ $conn->close();
                         <td><?php echo ucfirst($user['role']); ?></td>
                         <td>
                             <a href="edit_user.php?id=<?php echo $user['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="delete_user.php?id=<?php echo $user['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
+                            <a href="delete_user.php?id=<?php echo $user['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
@@ -95,7 +93,7 @@ $conn->close();
                         <td>£<?php echo htmlspecialchars($menu_item['price']); ?></td>
                         <td>
                             <a href="edit_menu.php?id=<?php echo $menu_item['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="delete_menu.php?id=<?php echo $menu_item['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
+                            <a href="delete_menu.php?id=<?php echo $menu_item['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this menu item?');">Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
@@ -125,7 +123,7 @@ $conn->close();
                         <td><?php echo htmlspecialchars($reservation['time']); ?></td>
                         <td>
                             <a href="edit_reservation.php?id=<?php echo $reservation['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="delete_reservation.php?id=<?php echo $reservation['id']; ?>" class="btn btn-danger btn-sm">Delete</a>
+                            <a href="delete_reservation.php?id=<?php echo $reservation['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this reservation?');">Delete</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
