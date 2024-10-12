@@ -2,10 +2,16 @@
 session_start();
 
 // If the user is already logged in, redirect them to the dashboard or homepage
-if (isset($_SESSION['user_id'])) {
+// If the user is already logged in, redirect them to the dashboard or homepage
+if (isset($_SESSION['is_admin'])) {
+    header("Location: admin_dashboard.php");
+    exit();
+}
+else if (isset($_SESSION['user_id'])) {
     header("Location: dashboard.php");
     exit();
 }
+
 
 // Handle the form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -19,20 +25,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Query to find the user by email
-    $stmt = $conn->prepare("SELECT id, name, password FROM users WHERE email = ?");
+    // Query to find the user by email and check if they are admin
+    $stmt = $conn->prepare("SELECT id, name, password, is_admin FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
-    $stmt->bind_result($user_id, $user_name, $hashed_password);
+    $stmt->bind_result($user_id, $user_name, $hashed_password, $is_admin);
     $stmt->fetch();
+
 
     // Validate email and password
     if ($stmt && password_verify($password, $hashed_password)) {
-        // Set session variables and redirect the user to the dashboard
+        // Set session variables
         $_SESSION['user_id'] = $user_id;
         $_SESSION['user_name'] = $user_name;
-        header("Location: dashboard.php");
-        exit();
+        $_SESSION['is_admin'] = $is_admin;
+
+        // Redirect to admin dashboard if the user is an admin
+        if ($is_admin) {
+            header("Location: admin_dashboard.php");
+            exit();
+        } else {
+            header("Location: dashboard.php");
+            exit();
+        }
     } else {
         // Invalid email or password
         $error_message = "Invalid email or password. Please try again.";
