@@ -1,3 +1,6 @@
+<?php
+session_start(); // Always call session_start() before any HTML or output
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -229,16 +232,8 @@
 
 <body>
     <header>
-        <nav>
-            <div class="logo">The Gallery Café</div>
-            <ul>
-            <li><a href="index.php">Home</a></li>
-                <li><a href="reservation.php">Reservations</a></li>
-                <li><a href="menu.php">Menu</a></li>
-                <li><a href="#promotions">Promotions</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
+        <!-- Include the Navbar -->
+        <?php include 'navbar.php'; ?>
         <h1>Welcome to The Gallery Café</h1>
         <p>Indulge in an unforgettable dining experience with our exquisite menus and cozy atmosphere. Reserve your table now!</p>
         <a href="reservation.php" class="cta-btn">Make a Reservation</a>
