@@ -34,43 +34,6 @@ session_start(); // Always call session_start() before any HTML or output
             position: relative;
         }
 
-        nav {
-            position: absolute;
-            top: 20px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 40px;
-            align-items: center;
-        }
-
-        nav .logo {
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-        }
-
-        nav ul li {
-            margin-left: 30px;
-        }
-
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 1rem;
-            padding: 8px 16px;
-            transition: background-color 0.3s ease;
-        }
-
-        nav ul li a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-        }
-
         header h1 {
             font-size: 3rem;
             margin-bottom: 1rem;

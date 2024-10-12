@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+// Ensure the user is logged in before making a reservation
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +16,7 @@
     <title>Reservations - The Gallery Café</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+        /* Same styling, no changes */
         * {
             margin: 0;
             padding: 0;
@@ -15,41 +26,6 @@
             font-family: 'Poppins', sans-serif;
             background-color: #f4f4f4;
         }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-        }
-        nav {
-            display: flex;
-            justify-content: space-between;
-            padding: 0 40px;
-            align-items: center;
-        }
-        nav .logo {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: white;
-        }
-        nav ul {
-            list-style: none;
-            display: flex;
-        }
-        nav ul li {
-            margin-left: 30px;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 1rem;
-            padding: 8px 16px;
-            transition: background-color 0.3s ease;
-        }
-        nav ul li a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-        }
         .container {
             max-width: 800px;
             margin: 2rem auto;
@@ -57,12 +33,15 @@
             background-color: white;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
+            margin-top: 100px;
         }
-        .container h2 {
+        h2 {
             text-align: center;
-            margin-bottom: 2rem;
             font-size: 2rem;
-            color: #333;
+            margin-bottom: 2rem;
+        }
+        .availability {
+            margin-bottom: 2rem;
         }
         form {
             display: flex;
@@ -89,12 +68,6 @@
         input[type="submit"]:hover {
             background-color: #d35400;
         }
-        .note {
-            font-size: 0.9rem;
-            color: #777;
-            text-align: center;
-            margin-top: 1rem;
-        }
         footer {
             margin-top: 2rem;
             padding: 1rem;
@@ -106,42 +79,31 @@
 </head>
 <body>
 
-    <!-- Header with Navigation -->
-    <header>
-        <nav>
-            <div class="logo"><a href="index.html" style="color: white;">The Gallery Café</a></div>
-            <ul>
-            <li><a href="index.php">Home</a></li>
-                <li><a href="reservation.php">Reservations</a></li>
-                <li><a href="menu.php">Menu</a></li>
-                <li><a href="#promotions">Promotions</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+    <!-- Include the Navbar -->
+    <?php include 'navbar.php'; ?>
 
-    <!-- Reservation Form -->
     <div class="container">
         <h2>Reserve Your Table</h2>
+
+        <!-- Table Capacities and Parking Information -->
+        <div class="availability">
+            <h3>Table Capacities</h3>
+            <p>Tables available for 2, 4, 6, and 8 guests.</p>
+            
+            <h3>Parking Availability</h3>
+            <p>Parking available for 20 vehicles.</p>
+            
+            <h3>Special Promotions</h3>
+            <p>Enjoy 10% off your meal on weekdays!</p>
+        </div>
+
         <form action="process_reservation.php" method="POST">
-            <label for="name">Full Name:</label>
-            <input type="text" id="name" name="name" required placeholder="Enter your full name">
-
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required placeholder="Enter your email">
-
-            <label for="phone">Phone Number:</label>
-            <input type="tel" id="phone" name="phone" required placeholder="Enter your phone number">
-
             <label for="guests">Number of Guests:</label>
             <select id="guests" name="guests" required>
-                <option value="" disabled selected>Select number of guests</option>
-                <option value="1">1 Guest</option>
                 <option value="2">2 Guests</option>
-                <option value="3">3 Guests</option>
                 <option value="4">4 Guests</option>
-                <option value="5">5 Guests</option>
-                <option value="6">6+ Guests</option>
+                <option value="6">6 Guests</option>
+                <option value="8">8 Guests</option>
             </select>
 
             <label for="date">Date:</label>
@@ -150,9 +112,18 @@
             <label for="time">Time:</label>
             <input type="time" id="time" name="time" required>
 
+            <!-- Pre-order food items -->
+            <h3>Pre-order Your Food</h3>
+            <label for="preorder">Select Your Meals:</label>
+            <select id="preorder" name="preorder[]" multiple>
+                <option value="Sri Lankan Rice and Curry">Sri Lankan Rice and Curry</option>
+                <option value="Chinese Stir-Fry Noodles">Chinese Stir-Fry Noodles</option>
+                <option value="Italian Margherita Pizza">Italian Margherita Pizza</option>
+                <option value="French Croissants">French Croissants</option>
+            </select>
+
             <input type="submit" value="Reserve Now">
         </form>
-        <p class="note">* Please ensure your details are correct before submitting the reservation.</p>
     </div>
 
     <footer>

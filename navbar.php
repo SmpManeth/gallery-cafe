@@ -11,6 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
         <li><a href="index.php">Home</a></li>
         <li><a href="menu.php">Menu</a></li>
         <li><a href="reservation.php">Reservations</a></li>
+        <li><a href="search_menu.php">Search Menu</a></li>
         
         <?php if (isset($_SESSION['user_id'])): ?>
             <!-- If the user is logged in, show Dashboard and Logout -->
@@ -27,12 +28,13 @@ if (session_status() === PHP_SESSION_NONE) {
 <style>
     .navbar {
         position: absolute;
-        top: 20px;
+        top: 0px;
         width: 100%;
         display: flex;
         justify-content: space-between;
-        padding: 0 40px;
+        padding: 10px 60px;
         align-items: center;
+        background: orange;
     }
 
     .navbar .logo {

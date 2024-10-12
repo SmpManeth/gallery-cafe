@@ -1,3 +1,6 @@
+<?php
+session_start(); // Always start the session
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,52 +21,12 @@
             background-color: #f4f4f4;
         }
 
-        /* Header Styling */
-        .header {
-            background-color: #333;
-            color: white;
-            padding: 1rem;
-        }
-
-        .header-nav {
-            display: flex;
-            justify-content: space-between;
-            padding: 0 40px;
-            align-items: center;
-        }
-
-        .header-logo {
-            font-size: 1.8rem;
-            font-weight: 600;
-        }
-
-        .header-nav ul {
-            list-style: none;
-            display: flex;
-        }
-
-        .header-nav ul li {
-            margin-left: 30px;
-        }
-
-        .header-nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 1rem;
-            padding: 8px 16px;
-            transition: background-color 0.3s ease;
-        }
-
-        .header-nav ul li a:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 5px;
-        }
-
         /* Section Styling */
         .section {
             padding: 4rem 2rem;
             text-align: center;
             background-color: #fff;
+            margin-top: 50px;
         }
 
         .section h2 {
@@ -128,19 +91,8 @@
 </head>
 <body>
 
-    <!-- Header with Navigation -->
-    <header class="header">
-        <nav class="header-nav">
-            <div class="header-logo">The Gallery Café</div>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="reservation.php">Reservations</a></li>
-                <li><a href="menu.php">Menu</a></li>
-                <li><a href="#promotions">Promotions</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
+    <!-- Include the Navbar -->
+    <?php include 'navbar.php'; ?>
 
     <!-- Types of Meals Section -->
     <section class="section" id="types-of-meals">

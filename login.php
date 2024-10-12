@@ -1,38 +1,50 @@
 <?php
 session_start();
-require 'db.php'; // Your database connection file
 
+// If the user is already logged in, redirect them to the dashboard or homepage
+if (isset($_SESSION['user_id'])) {
+    header("Location: dashboard.php");
+    exit();
+}
+
+// Handle the form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = htmlspecialchars($_POST['email']);
-    $password = $_POST['password'];
+    $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
+    $password = trim($_POST['password']);
 
-    // Prepare and execute query
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    // Database connection
+    $conn = new mysqli('localhost', 'root', '', 'thegallerycafe');
+
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Query to find the user by email
+    $stmt = $conn->prepare("SELECT id, name, password FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        // Verify the password
-        if (password_verify($password, $user['password'])) {
-            // Store user info in session and redirect to dashboard
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['name'];
-            header("Location: dashboard.php");
-            exit;
-        } else {
-            $error = "Incorrect password.";
-        }
+    $stmt->bind_result($user_id, $user_name, $hashed_password);
+    $stmt->fetch();
+
+    // Validate email and password
+    if ($stmt && password_verify($password, $hashed_password)) {
+        // Set session variables and redirect the user to the dashboard
+        $_SESSION['user_id'] = $user_id;
+        $_SESSION['user_name'] = $user_name;
+        header("Location: dashboard.php");
+        exit();
     } else {
-        $error = "User not found.";
+        // Invalid email or password
+        $error_message = "Invalid email or password. Please try again.";
     }
+
+    $stmt->close();
+    $conn->close();
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,6 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         h2 {
             text-align: center;
+            margin-bottom: 20px;
         }
 
         form {
@@ -79,6 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cursor: pointer;
             border-radius: 5px;
             margin-top: 10px;
+            transition: background-color 0.3s ease;
         }
 
         .btn:hover {
@@ -88,25 +102,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .error {
             color: red;
             text-align: center;
+            margin-top: 10px;
+        }
+
+        .note {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        footer {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #333;
+            color: white;
+            text-align: center;
         }
     </style>
 </head>
-
 <body>
+
+    <!-- Include Navbar -->
+    <?php include 'navbar.php'; ?>
 
     <div class="container">
         <h2>Login</h2>
-        <?php if (isset($error)): ?>
-            <p class="error"><?php echo $error; ?></p>
-        <?php endif; ?>
-        <form method="POST" action="">
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
+        <form action="login.php" method="POST">
+            <input type="email" name="email" placeholder="Enter your email" required>
+            <input type="password" name="password" placeholder="Enter your password" required>
             <button type="submit" class="btn">Login</button>
         </form>
-        <p>Don't have an account? <a href="register.php">Register here</a></p>
+
+        <!-- Display error message if login fails -->
+        <?php if (isset($error_message)): ?>
+            <p class="error"><?php echo $error_message; ?></p>
+        <?php endif; ?>
+
+        <p class="note">Don't have an account? <a href="register.php">Register here</a></p>
+        <p class="note">Forgot your password? <a href="forgot_password.php">Reset it here</a></p>
     </div>
 
 </body>
-
 </html>
